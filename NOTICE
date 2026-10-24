@@ -1,0 +1,46 @@
+Zipcoin
+Copyright 2026 the Zipcoin contributors
+
+Licensed under the Apache License, Version 2.0. See LICENSE.
+
+This repository builds on and distributes the following third-party work.
+
+Privacy Pools core (contracts, circuits, SDK) by 0xbow
+  License: Apache-2.0
+  Source:  https://github.com/0xbow-io/privacy-pools-core
+  Use:     compiled and deployed unmodified as protocol/lib/privacy-pools-core (git submodule);
+           Groth16 proving and verification artifacts are taken verbatim from its public trusted setup;
+           the SDK is a runtime dependency of the app.
+
+OpenZeppelin Contracts and OpenZeppelin Contracts Upgradeable
+  License: MIT
+  Source:  https://github.com/OpenZeppelin/openzeppelin-contracts
+           https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
+
+forge-std by the Foundry authors
+  License: MIT or Apache-2.0
+  Source:  https://github.com/foundry-rs/forge-std
+
+@zk-kit/lean-imt.sol by Privacy and Scaling Explorations
+  License: MIT
+  Use:     vendored verbatim in protocol/lib/lean-imt
+
+poseidon-solidity by Chance Hudson
+  License: MIT
+  Use:     vendored verbatim in protocol/lib/poseidon-solidity
+
+snarkjs by iden3
+  License: GPL-3.0
+  Use:     runtime dependency of the app (proof generation in the browser) and of the node (proof
+           verification before relaying). Not modified and not vendored; obtained from npm at build time.
+
+Other npm dependencies (React, Vite, viem, wagmi, Express, better-sqlite3, zod, multiformats,
+poseidon-lite and their transitive dependencies) are used under their respective MIT, ISC or
+Apache-2.0 licences as declared in their package manifests.
+
+Snowmoon, a novel by Vitalik Buterin, is published under the GPL v3 at https://vitalik.eth.limo/snowmoon/.
+Zipcoin quotes it as a design reference. Zipcoin is an independent project and is not affiliated with
+the author, the Ethereum Foundation or 0xbow.
+
+The association policy reads the Chainalysis sanctions oracle contract on Ethereum mainnet. It is a
+public contract queried read-only; no Chainalysis software is included here.

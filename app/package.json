@@ -1,0 +1,39 @@
+{
+  "name": "@zipcoin/app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zipcoin wallet: deposit ZC, prove in the browser, post to the Book, leave Doorstep messages, withdraw",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prebuild": "node scripts/sync-artifacts.mjs",
+    "artifacts": "node scripts/sync-artifacts.mjs",
+    "vercel:config": "node scripts/make-vercel-config.mjs"
+  },
+  "dependencies": {
+    "@0xbow/privacy-pools-core-sdk": "1.5.0",
+    "@scure/bip39": "1.5.4",
+    "@tanstack/react-query": "5.66.0",
+    "@zk-kit/lean-imt": "2.2.4",
+    "poseidon-lite": "0.3.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "^6.28.1",
+    "viem": "2.22.14",
+    "wagmi": "2.14.11"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.18",
+    "@types/react-dom": "18.3.5",
+    "@vitejs/plugin-react": "4.3.4",
+    "puppeteer-core": "^23.11.1",
+    "tsx": "4.19.2",
+    "typescript": "5.7.3",
+    "vite": "6.1.0",
+    "vite-plugin-node-polyfills": "0.23.0"
+  }
+}

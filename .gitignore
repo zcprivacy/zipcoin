@@ -1,0 +1,24 @@
+node_modules/
+protocol/out/
+protocol/cache/
+protocol/broadcast/**/dry-run/
+protocol/broadcast/**/31337/
+.env
+.env.*
+!.env.example
+.vercel/
+*.log
+.DS_Store
+Thumbs.db
+app/dist/
+services/node/dist/
+services/node/data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# generated at deploy time from app/vercel.template.json (holds the operator's node origin)
+app/vercel.json
+# proving artifacts are copied from the pinned core submodule at build time
+app/public/artifacts/*.wasm
+app/public/artifacts/*.zkey

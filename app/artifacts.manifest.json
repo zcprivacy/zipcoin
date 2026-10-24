@@ -1,0 +1,21 @@
+{
+  "note": "Groth16 artifacts from the Privacy Pools v1 public trusted setup, taken verbatim from the pinned core submodule under protocol/lib/privacy-pools-core/packages/circuits. The small .vkey files are committed; the wasm and zkey files are copied into public/artifacts by scripts/sync-artifacts.mjs and verified against these hashes.",
+  "files": {
+    "commitment.wasm": {
+      "source": "build/commitment/commitment_js/commitment.wasm",
+      "sha256": "254d2130607182fd6fd1aee67971526b13cfe178c88e360da96dce92663828d8"
+    },
+    "commitment.zkey": {
+      "source": "trusted-setup/final-keys/commitment.zkey",
+      "sha256": "494ae92d64098fda2a5649690ddc5821fcd7449ca5fe8ef99ee7447544d7e1f3"
+    },
+    "withdraw.wasm": {
+      "source": "build/withdraw/withdraw_js/withdraw.wasm",
+      "sha256": "36cda22791def3d520a55c0fc808369cd5849532a75fab65686e666ed3d55c10"
+    },
+    "withdraw.zkey": {
+      "source": "trusted-setup/final-keys/withdraw.zkey",
+      "sha256": "2a893b42174c813566e5c40c715a8b90cd49fc4ecf384e3a6024158c3d6de677"
+    }
+  }
+}

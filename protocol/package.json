@@ -1,0 +1,10 @@
+{
+  "name": "@zipcoin/protocol",
+  "private": true,
+  "description": "Zipcoin protocol contracts: a ZC Privacy Pools v1 deployment plus stateless spender contracts",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@zk-kit/lean-imt.sol": "2.0.0",
+    "poseidon-solidity": "0.0.5"
+  }
+}

@@ -1,0 +1,25 @@
+name: Proposal
+description: A change to the protocol, the policy, the node or the app.
+labels: [proposal]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is wrong or missing today, and for whom.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should change. For contract changes, what is public on chain afterwards and what is not.
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Effect on privacy and trust
+      description: Does it change what an observer learns, what any key can do, or what the association policy decides?
+    validations:
+      required: true

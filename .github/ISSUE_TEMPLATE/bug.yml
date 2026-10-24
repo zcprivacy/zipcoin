@@ -1,0 +1,32 @@
+name: Bug report
+description: Something in the contracts, the node or the app does not behave as documented.
+labels: [bug]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [protocol, node, app, docs]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what you saw. Include transaction hashes or block numbers where relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: Commands, inputs, environment. For the app, the browser and wallet used.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: This report contains no private keys, zip phrases or note secrets.
+          required: true
+        - label: This is not a security vulnerability. Those go through the private report link, not an issue.
+          required: true

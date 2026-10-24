@@ -1,0 +1,10 @@
+forge-std/=lib/forge-std/src/
+@oz/=lib/openzeppelin-contracts/contracts/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@oz-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
+@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
+lean-imt/=lib/lean-imt/
+poseidon/=lib/poseidon-solidity/
+poseidon-solidity/=lib/poseidon-solidity/
+contracts/=lib/privacy-pools-core/packages/contracts/src/contracts/
+interfaces/=lib/privacy-pools-core/packages/contracts/src/interfaces/
