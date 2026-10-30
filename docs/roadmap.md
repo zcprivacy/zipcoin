@@ -38,13 +38,19 @@ updated first.
 - [ ] Envelopes for longer messages
 - [x] Spender source published and verified on Etherscan
 
-## Phase V · Tellers, the Hearth and the Changer — next
+## Phase V · ZipHook — building
 
-- [ ] Shielded staking: lock a note from inside the pool and return it to the pool with its reward
-- [ ] Tellers: pay out a withdrawal in ETH or a stablecoin
-- [ ] The Hearth: gifts that carry a burn
-- [ ] The Changer: swap inside the withdrawal, with a public fee cap
-- [ ] Payment links a merchant can issue without knowing the payer
+Markets with a door into the shield: an ETH pool as the hub, a Uniswap v4 hook on every market,
+private swaps for any token. No listing fee; deposits, holding and withdrawals in every private pool
+stay free. The market pays: 1% per swap, 0.6% to liquidity providers through the pool fee and 0.4%
+in ETH to the treasury.
+
+- [ ] The ETH pool, free, registered on the Entrypoint
+- [ ] The hook: dynamic pool fee for providers, treasury share taken in ETH, shield-on-buy
+- [ ] Buy into the shield: purchases deposited straight into the token's private pool as a note
+- [ ] The swap spender: ETH note to token note and back, with a hashed recovery per note
+- [ ] The factory: anyone opens a market for any standard ERC-20, no listing fee
+- [ ] ZC/ETH as the first market, seeded and rehearsed on a mainnet fork
 
 ## Phase VI · Open relaying — later
 
@@ -63,8 +69,10 @@ Mechanisms from the novel that need new circuits and a new trusted setup.
 - [ ] Reputation-collateralised loans where only the nullifier and the amount are public
 - [ ] Nullifier-gated polls: one voice per note
 
-## Phase VIII · Reach — later
+## Phase VIII · Privacy pad and reach — later
 
+- [ ] Privacy pad: a token launched with its market and its private pool in one transaction, no
+      creator allocation, creator paid from fees
 - [ ] Deployment on an Ethereum L2 with the same policy
 - [ ] Integration with privacy-first wallets
 - [ ] Agent and MCP toolkit so software can pay privately too

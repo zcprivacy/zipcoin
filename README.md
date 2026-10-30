@@ -103,7 +103,7 @@ Role assignments and timelock delay can be checked with two calls, listed in
 |---|---|
 | `protocol/` | Foundry package: spender contracts, deployment script, tests, deployment record |
 | `services/node/` | One Node.js service with four roles: indexer, API, association-set poster, relayer |
-| `app/` | The website and wallet: zip key derivation, note recovery, in-browser proving, the Book and the Doorstep |
+| `app/` | The website and wallet: zip key derivation, note recovery, in-browser proving, the Book, the Doorstep, the ZipHook market pages |
 | `docs/` | Specification, trust model, approval policy, deployment record, self-hosting guide, roadmap |
 
 ## Status

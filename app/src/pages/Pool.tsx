@@ -5,7 +5,6 @@ import { isAddress, type Address, type Hex } from 'viem';
 import { useAccount, usePublicClient, useReadContract, useWalletClient } from 'wagmi';
 
 import { ProofProgress } from '../components/ProofProgress';
-import { StatsStrip } from '../components/StatsStrip';
 import { entrypointAbi, erc20Abi, poolAbi } from '../lib/abi';
 import { api } from '../lib/api';
 import { fmtZC, parseZC, short, shortBig } from '../lib/format';
@@ -25,63 +24,72 @@ export default function Pool() {
 
   if (!pool) {
     return (
-      <div className="wrap page">
-        {zip.poolError ? <div className="alert alert-bad">The Zipcoin node is unreachable. Nothing can be read or relayed until it is back.</div> : <p className="muted"><span className="spin" />Connecting to the Zipcoin node</p>}
+      <div className="page pad">
+        {zip.poolError ? <div className="alert alert-bad">The Zipcoin node is unreachable. Nothing can be read or relayed until it is back.</div> : <p className="muted mono"><span className="spin" />Connecting to the Zipcoin node</p>}
       </div>
     );
   }
 
+  const s = zip.stats;
   const notes = zip.account?.notes ?? [];
   const statuses = zip.account?.statuses ?? new Map<string, Status>();
-  const total = notes.reduce((s, n) => s + n.value, 0n);
-  const spendable = notes.filter((n) => statusOf(statuses, n) === 'approved').reduce((s, n) => s + n.value, 0n);
-  const pending = notes.filter((n) => statusOf(statuses, n) === 'pending').reduce((s, n) => s + n.value, 0n);
+  const total = notes.reduce((x, n) => x + n.value, 0n);
+  const spendable = notes.filter((n) => statusOf(statuses, n) === 'approved').reduce((x, n) => x + n.value, 0n);
+  const pending = notes.filter((n) => statusOf(statuses, n) === 'pending').reduce((x, n) => x + n.value, 0n);
   const delay = asp.data?.delaySeconds;
 
   return (
-    <div className="wrap page">
-      <div className="page-head">
+    <main>
+      <div className="page-head pad">
         <div>
-          <p className="eyebrow">Pool</p>
-          <h1 className="page-h">Your money, <em>in and out.</em></h1>
-          <p className="page-sub">Deposits are public. Everything after is private. A note becomes spendable once the published policy approves it{delay !== undefined ? `, ${delayText(delay)}` : ''}, and can always be returned to its wallet with ragequit.</p>
+          <span className="eyebrow">01 · The Pool</span>
+          <h1 className="h1">Your money, in and out.</h1>
         </div>
-        {!zip.phrase && <button className="btn btn-primary" onClick={zip.openUnlock}>Unlock your notes</button>}
+        <p className="page-sub">Deposits are public. Everything after is private. A note becomes spendable once the published policy approves it{delay !== undefined ? `, ${delayText(delay)}` : ''}, and can always be returned to its wallet with ragequit.</p>
       </div>
 
-      <StatsStrip
-        items={
-          zip.account
-            ? [
-                { k: 'Balance', v: fmtZC(total), unit: 'ZC' },
-                { k: 'Spendable', v: fmtZC(spendable), unit: 'ZC', d: 'approved notes' },
-                { k: 'Pending approval', v: fmtZC(pending), unit: 'ZC' },
-                { k: 'Notes', v: String(notes.length), d: `${zip.stats?.deposits ?? '…'} deposits in the pool` },
-              ]
-            : [
-                { k: 'In the pool', v: fmtZC(zip.stats?.inPool ?? '0', 0), unit: 'ZC' },
-                { k: 'Deposits', v: String(zip.stats?.deposits ?? '…'), d: `${zip.stats?.approved ?? '…'} approved` },
-                { k: 'Anonymity set', v: String(zip.stats?.approved ?? '…'), d: 'approved deposits' },
-                { k: 'Burned', v: fmtZC(zip.stats?.totalBurned ?? '0', 0), unit: 'ZC', ember: true },
-              ]
-        }
-      />
-
-      {zip.loading && <p className="muted"><span className="spin" />{zip.loading}</p>}
-      {zip.error && !zip.unlockOpen && <div className="alert alert-bad" style={{ marginBottom: '1rem' }}>{zip.error}</div>}
-
-      <div className="cols">
-        <DepositCard />
-        <WithdrawCard />
-      </div>
+      <section className="ledger pad rule-b" style={{ '--cols': '1.2fr 1fr 1fr 1fr 1fr 140px' } as React.CSSProperties}>
+        <div className="ledger-head"><span>Asset</span><span>Inside</span><span>Deposits</span><span>Approved set</span><span>Protocol fee</span><span className="right">Status</span></div>
+        <div className="ledger-row hi">
+          <span className="name" style={{ fontSize: 28 }}>ZC</span>
+          <span className="cost num" style={{ fontSize: 18 }}>{s ? fmtZC(s.inPool, 0) : '…'}</span>
+          <span className="cost" style={{ fontSize: 18 }}>{s?.deposits ?? '…'}</span>
+          <span className="cost" style={{ fontSize: 18 }}>{s ? `${s.approved} labels` : '…'}</span>
+          <span className="cost" style={{ fontSize: 18 }}>{Number(pool.vettingFeeBPS) / 100}%</span>
+          <span className="status chip-live">Live</span>
+        </div>
+        <div className="ledger-row" style={{ borderBottom: 0 }}>
+          <span className="name" style={{ fontSize: 28 }}>ETH <span className="light" style={{ fontSize: 16, color: 'var(--mute)' }}>the hub</span></span>
+          <span className="cost muted" style={{ fontSize: 18 }}>—</span>
+          <span className="cost muted" style={{ fontSize: 18 }}>—</span>
+          <span className="cost muted" style={{ fontSize: 18 }}>—</span>
+          <span className="cost" style={{ fontSize: 18 }}>0</span>
+          <span className="status chip-building">Building</span>
+        </div>
+      </section>
 
       {zip.account && (
-        <div className="cols" style={{ marginTop: '1.25rem' }}>
-          <NotesCard notes={notes} statuses={statuses} />
-          <ActivityCard />
-        </div>
+        <section className="totals" style={{ '--n': 4 } as React.CSSProperties}>
+          <div className="total"><span className="k">Your balance</span><span className="v">{fmtZC(total)}<small>ZC</small></span></div>
+          <div className="total"><span className="k">Spendable</span><span className="v">{fmtZC(spendable)}<small>ZC</small></span><span className="d">approved notes</span></div>
+          <div className="total"><span className="k">Pending approval</span><span className="v">{fmtZC(pending)}<small>ZC</small></span></div>
+          <div className="total"><span className="k">Notes</span><span className="v">{notes.length}</span><span className="d">{s?.deposits ?? '…'} deposits in the pool</span></div>
+        </section>
       )}
-    </div>
+
+      {zip.loading && <p className="muted mono pad" style={{ padding: '14px 0' }}><span className="spin" />{zip.loading}</p>}
+      {zip.error && !zip.unlockOpen && <div className="pad" style={{ paddingBlock: 14 }}><div className="alert alert-bad">{zip.error}</div></div>}
+
+      <section className="split">
+        <div className="col"><DepositCard /></div>
+        <div className="col ink"><WithdrawCard /></div>
+      </section>
+
+      <section className="split">
+        <div className="col"><NotesCard notes={notes} statuses={statuses} /></div>
+        <div className="col"><ActivityCard /></div>
+      </section>
+    </main>
   );
 }
 
@@ -152,33 +160,38 @@ function DepositCard() {
   };
 
   return (
-    <section className="card">
-      <div className="card-head"><h2>Deposit</h2><span className="chip">public</span></div>
-      <div className="stack">
-        <label className="field">
-          Amount in ZC
-          <input className="input num" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
-        </label>
-        <p className="fine num">
-          Wallet balance {balance.data !== undefined ? fmtZC(balance.data) : '…'} ZC · minimum {fmtZC(min)} ZC
-          {vetting > 0n ? ` · vetting fee ${Number(vetting) / 100}%` : ' · no deposit fee'}
-        </p>
-        <div className="row">
-          <button className="btn btn-primary" disabled={!zip.account || !wallet || !!busy} onClick={() => void submit()}>
-            {busy ? <><span className="spin" />{busy}</> : 'Deposit'}
-          </button>
-          {!zip.account && <button className="link" onClick={zip.openUnlock}>Unlock your zip key first</button>}
-          {zip.account && !wallet && <span className="fine">Connect a wallet to deposit</span>}
-        </div>
-        {done && (
-          <div className="alert alert-ok">
-            Deposited. It shows under Notes as pending until the policy approves it.{' '}
-            {zip.explorer(done) ? <a href={zip.explorer(done)!} target="_blank" rel="noopener">View transaction</a> : <code className="fine">{short(done, 8)}</code>}
-          </div>
-        )}
-        {error && <div className="alert alert-bad">{error}</div>}
+    <div className="card">
+      <div className="card-head"><h2>Deposit</h2><span className="tag">public</span></div>
+      <div className="seg">
+        <button className="is-on">ZC</button>
+        <button disabled title="The ETH pool is being built">ETH · building</button>
       </div>
-    </section>
+      <label className="field">
+        <span>Amount in ZC</span>
+        <input className="input big num" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+      </label>
+      <div className="receipt">
+        <div><span>wallet balance</span><span>{balance.data !== undefined ? `${fmtZC(balance.data)} ZC` : 'connect to see'}</span></div>
+        <div><span>minimum</span><span>{fmtZC(min)} ZC</span></div>
+        <div><span>deposit fee</span><span>{vetting > 0n ? `${Number(vetting) / 100}%` : '0'}</span></div>
+        <div><span>spendable after</span><span>policy approval</span></div>
+      </div>
+      <div className="row">
+        <button className="btn btn-ink btn-big" disabled={!zip.account || !wallet || !!busy} onClick={() => void submit()}>
+          {busy ? <><span className="spin" />{busy}</> : 'Deposit'}
+        </button>
+        {!zip.account && <button className="link" onClick={zip.openUnlock}>Unlock your zip key first</button>}
+        {zip.account && !wallet && <span className="fine">Connect a wallet to deposit</span>}
+      </div>
+      {done && (
+        <div className="alert alert-ok">
+          Deposited. It shows under Notes as pending until the policy approves it.{' '}
+          {zip.explorer(done) ? <a href={zip.explorer(done)!} target="_blank" rel="noopener">View transaction</a> : <code className="fine">{short(done, 8)}</code>}
+        </div>
+      )}
+      {error && <div className="alert alert-bad">{error}</div>}
+      <p className="fine">The deposit is public and screened against the published policy. Anyone can rerun the rule.</p>
+    </div>
   );
 }
 
@@ -189,7 +202,7 @@ function WithdrawCard() {
   const pool = zip.pool!;
   const [mode, setMode] = useState<'private' | 'ragequit'>('private');
   return (
-    <section className="card">
+    <div className="card">
       <div className="card-head">
         <h2>Withdraw</h2>
         <div className="seg">
@@ -198,7 +211,7 @@ function WithdrawCard() {
         </div>
       </div>
       {mode === 'private' ? <PrivateWithdraw /> : <Ragequit poolAddress={pool.pool} chainId={pool.chainId} />}
-    </section>
+    </div>
   );
 }
 
@@ -214,7 +227,8 @@ function PrivateWithdraw() {
   const value = amount ? parseZC(amount) : 0n;
   const notes = zip.account?.notes ?? [];
   const statuses = zip.account?.statuses ?? new Map<string, Status>();
-  const candidates = notes.filter((n) => statusOf(statuses, n) === 'approved' && value > 0n && n.value >= value).sort((a, b) => (a.value < b.value ? 1 : -1));
+  // The smallest approved note that covers the amount, so large notes stay intact.
+  const candidates = notes.filter((n) => statusOf(statuses, n) === 'approved' && value > 0n && n.value >= value).sort((a, b) => (a.value < b.value ? -1 : 1));
 
   const go = async () => {
     setError(null);
@@ -237,24 +251,26 @@ function PrivateWithdraw() {
 
   return (
     <div className="stack">
-      <p className="fine">Paid out through the relayer, so your wallet never signs. The chain sees a payment to the recipient and cannot link it to your deposit. Use a fresh address for the strongest privacy.</p>
+      <p className="light" style={{ fontSize: 14 }}>Paid out through a relayer, so your wallet never signs. The chain sees a payment to the recipient and cannot link it to your deposit. Use a fresh address for the strongest privacy.</p>
       <label className="field">
-        Recipient
-        <input className="input mono" value={recipient} onChange={(e) => setRecipient(e.target.value.trim())} placeholder="0x…" />
+        <span>Recipient</span>
+        <input className="input" value={recipient} onChange={(e) => setRecipient(e.target.value.trim())} placeholder="0x… a fresh address" />
       </label>
       <label className="field">
-        Amount in ZC
-        <input className="input num" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+        <span>Amount in ZC</span>
+        <input className="input big num" inputMode="decimal" value={amount} placeholder={zip.account ? '0' : 'unlock your zip key to see your notes'} onChange={(e) => setAmount(e.target.value)} />
       </label>
-      <p className="fine num">
-        Recipient receives {fmtZC(value - (value * feeBps) / 10_000n)} ZC after the {Number(feeBps) / 100}% relay fee
-        {candidates[0] ? ` · from a ${fmtZC(candidates[0].value)} ZC note` : value > 0n && zip.account ? ' · no approved note large enough' : ''}
-      </p>
+      <div className="receipt">
+        <div><span>taken from</span><span>{candidates[0] ? `a ${fmtZC(candidates[0].value)} ZC note` : value > 0n && zip.account ? 'no approved note large enough' : 'the smallest note that covers it'}</span></div>
+        <div><span>relayer fee</span><span>{Number(feeBps) / 100}% · fixed in your proof</span></div>
+        <div><span>recipient receives</span><span>{fmtZC(value - (value * feeBps) / 10_000n)} ZC</span></div>
+        <div><span>change</span><span>returns to you as a fresh note</span></div>
+      </div>
       {progress ? (
         <ProofProgress message={progress} />
       ) : (
         <div className="row">
-          <button className="btn btn-primary" disabled={!zip.account || !candidates[0]} onClick={() => void go()}>Withdraw privately</button>
+          <button className="btn btn-ink btn-big" disabled={!zip.account || !candidates[0]} onClick={() => void go()}>Prove and withdraw</button>
           {!zip.account && <button className="link" onClick={zip.openUnlock}>Unlock your zip key first</button>}
         </div>
       )}
@@ -303,7 +319,7 @@ function Ragequit({ poolAddress, chainId }: { poolAddress: Address; chainId: num
 
   return (
     <div className="stack">
-      <p className="fine">Public exit. The whole note returns to the wallet that deposited it, with no approval from anyone. Works for pending and rejected deposits too.</p>
+      <p className="light" style={{ fontSize: 14 }}>Public exit. The whole note returns to the wallet that deposited it, with no approval from anyone. Works for pending and rejected deposits too.</p>
       {!zip.account && <button className="link" onClick={zip.openUnlock}>Unlock your zip key to see your notes</button>}
       {zip.account && notes.length === 0 && <p className="muted">No notes to return.</p>}
       <ul className="notes">
@@ -313,7 +329,7 @@ function Ragequit({ poolAddress, chainId }: { poolAddress: Address; chainId: num
               <div className="amt num">{fmtZC(n.value)} ZC</div>
               <div className="lbl">label {shortBig(n.label)}</div>
             </div>
-            <button className="btn btn-sm btn-danger" disabled={!!busy || !wallet} onClick={() => void go(n)}>
+            <button className="btn btn-sm" disabled={!!busy || !wallet} onClick={() => void go(n)}>
               {busy ? <><span className="spin" />{busy}</> : 'Ragequit'}
             </button>
           </li>
@@ -331,40 +347,47 @@ function NotesCard({ notes, statuses }: { notes: AccountCommitment[]; statuses: 
   const zip = useZip();
   const [reveal, setReveal] = useState(false);
   return (
-    <section className="card">
+    <div className="card">
       <div className="card-head">
-        <h2>Notes</h2>
-        <div className="row">
-          <button className="btn btn-sm" onClick={() => void zip.refresh()}>Reload</button>
-          <button className="btn btn-sm" onClick={() => setReveal((v) => !v)}>{reveal ? 'Hide phrase' : 'Show phrase'}</button>
-        </div>
+        <h2 style={{ fontSize: 26 }}>Your notes</h2>
+        {zip.account && (
+          <div className="row">
+            <button className="btn btn-sm" onClick={() => void zip.refresh()}>Reload</button>
+            <button className="btn btn-sm" onClick={() => setReveal((v) => !v)}>{reveal ? 'Hide phrase' : 'Show phrase'}</button>
+          </div>
+        )}
       </div>
-      {reveal && zip.phrase && (
-        <div className="stack" style={{ marginBottom: '1rem' }}>
-          <div className="phrase">{zip.phrase}</div>
-          <p className="fine">Anyone with these twelve words can spend your notes. Your wallet can re-derive them by signing again.</p>
-          <p className="fine">
-            <strong>Back them up now.</strong> Write them down and keep them offline, as you would a seed phrase. They are the only way
-            to reach your notes from a device without this wallet, and the fallback if your wallet ever signs differently.
-          </p>
+      {!zip.account && (
+        <div className="empty">
+          <b>Locked.</b>
+          <span className="light">Unlock with one wallet signature, or paste your twelve-word zip phrase. Nothing is stored; closing the tab locks again.</span>
+          <button className="btn btn-ink btn-big" onClick={zip.openUnlock}>Unlock your notes</button>
         </div>
       )}
-      {notes.length === 0 && <p className="muted">No notes yet. Deposit ZC to create one.</p>}
+      {reveal && zip.phrase && (
+        <div className="stack">
+          <div className="phrase">{zip.phrase}</div>
+          <p className="fine">Anyone with these twelve words can spend your notes. Your wallet can re-derive them by signing again.</p>
+          <p className="fine"><strong>Back them up now.</strong> Write them down and keep them offline, as you would a seed phrase. They are the only way to reach your notes from a device without this wallet, and the fallback if your wallet ever signs differently.</p>
+        </div>
+      )}
+      {zip.account && notes.length === 0 && <p className="muted">No notes yet. Deposit ZC to create one.</p>}
       <ul className="notes">
         {notes.map((n) => {
-          const s = statusOf(statuses, n);
+          const st = statusOf(statuses, n);
           return (
             <li key={n.hash.toString()}>
               <div>
                 <div className="amt num">{fmtZC(n.value)} ZC</div>
                 <div className="lbl">label {shortBig(n.label)} · commitment {shortBig(n.hash)}</div>
               </div>
-              <span className={`chip ${s === 'approved' ? 'chip-ok' : s === 'rejected' ? 'chip-bad' : 'chip-wait'}`}>{s}</span>
+              <span className={`chip ${st === 'approved' ? 'chip-ok' : st === 'rejected' ? 'chip-bad' : 'chip-wait'}`}>{st}</span>
             </li>
           );
         })}
       </ul>
-    </section>
+      <p className="fine">Anyone with the twelve words can spend your notes. Back them up offline, as you would a seed phrase.</p>
+    </div>
   );
 }
 
@@ -386,18 +409,20 @@ function ActivityCard() {
   }, [zip.account]);
 
   return (
-    <section className="card">
-      <div className="card-head"><h2>Activity</h2><span className="fine">your own, recovered from chain</span></div>
-      {items.length === 0 && <p className="muted">Nothing yet.</p>}
+    <div className="card">
+      <div className="card-head"><h2 style={{ fontSize: 26 }}>Your activity</h2><span className="fine">recovered from chain</span></div>
+      {!zip.account && <p className="muted">Unlock to see your deposits, spends and ragequits.</p>}
+      {zip.account && items.length === 0 && <p className="muted">Nothing yet.</p>}
       <ul className="activity">
         {items.map((it, i) => (
           <li key={`${it.tx}-${i}`}>
             <span className="t">{it.kind}</span>
             <span className="num">{fmtZC(it.value)} ZC</span>
-            {zip.explorer(it.tx) ? <a href={zip.explorer(it.tx)!} target="_blank" rel="noopener">{short(it.tx, 6)}</a> : <span className="mono fine">{it.block === 0n ? 'pending' : short(it.tx, 6)}</span>}
+            {zip.explorer(it.tx) ? <a href={zip.explorer(it.tx)!} target="_blank" rel="noopener">{short(it.tx, 6)}</a> : <span className="fine">{it.block === 0n ? 'pending' : short(it.tx, 6)}</span>}
           </li>
         ))}
       </ul>
-    </section>
+      <p className="fine">Withdrawals list a nullifier and an amount. They are not listed against a deposit, because the chain cannot do that either.</p>
+    </div>
   );
 }

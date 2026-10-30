@@ -12,7 +12,7 @@ export function CopyButton({ text }: { text: string }) {
     setTimeout(() => setState('idle'), 1600);
   };
   return (
-    <button className="tiny-btn" type="button" onClick={() => void copy()}>
+    <button className="btn btn-sm" type="button" onClick={() => void copy()}>
       {state === 'ok' ? 'Copied' : state === 'fail' ? 'Select to copy' : 'Copy'}
     </button>
   );

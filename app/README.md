@@ -1,23 +1,28 @@
 # Zipcoin site and app
 
-One Vite + React site: the public intro page at `/` and the wallet behind it. Every proof is generated
-in the browser and every piece of state is rebuilt from public chain events served by a Zipcoin node.
+One Vite + React site: the public pages and the wallet behind them. Every proof is generated in the
+browser and every piece of state is rebuilt from public chain events served by a Zipcoin node. The
+fonts are served from `public/fonts` (SIL Open Font License, see the licence file there); the site
+makes no third-party requests.
 
 | Route | What |
 |---|---|
-| `/` | Intro page: frost hero with a live status card, thesis, how it works with the receipt demo, architecture, the Book preview fed live from the node, roadmap, token, commitments, lineage, FAQ |
-| `/pool` | Balance strip, Deposit and Withdraw (private via relayer, or ragequit) side by side, your notes and activity |
+| `/` | Home: the public and the private side of one payment, the feature ledger with live totals, how a ZipHook market works, the steps, totals |
+| `/pool` | Pools ledger, Deposit and Withdraw (private via relayer, or ragequit) side by side, your notes and activity |
+| `/hook` | ZipHook: the three ways through a market, the swap panel and the markets ledger (preview until the contracts are on mainnet) |
+| `/hook/new` | Open a market: token, pair and liquidity, hook terms, review (preview) |
 | `/book` | Stats strip, live feed with sorting, threads and a "new entries" pill, compose panel |
 | `/doorstep` | Deliveries at an address, live, plus compose |
+| `/docs` | Overview, thesis, how it works with the receipt demo, architecture, ZipHook, approval policy, trust model, roadmap, token, commitments, lineage, FAQ |
 
 - **Zip key**: one wallet signature over a fixed message derives a 12-word phrase (BIP-39). The same
   wallet always yields the same phrase, so nothing is stored. The phrase can be exported and imported.
   Unlocking is a modal; the header shows the lock state.
 - **Notes**: recovered with the Privacy Pools SDK `AccountService`, fed by the node's `/pool/events`.
 - **Live data**: the node's `/stats` and `/events/stream` (server-sent events) drive the stats strips,
-  the landing status card and the feeds.
+  the home page and the feeds.
 - **Proving**: own artifact loader over `public/artifacts` (same bytes as the Privacy Pools trusted
-  setup). The proving stack is a lazy chunk; the intro page never loads it.
+  setup). The proving stack is a lazy chunk; the public pages never load it.
 
 ## Run
 

@@ -34,6 +34,10 @@ snarkjs by iden3
   Use:     runtime dependency of the app (proof generation in the browser) and of the node (proof
            verification before relaying). Not modified and not vendored; obtained from npm at build time.
 
+Bricolage Grotesque by Mathieu Triay and JetBrains Mono by JetBrains
+  License: SIL Open Font License 1.1
+  Use:     served from app/public/fonts as subsetted variable WOFF2 files; licence text alongside them.
+
 Other npm dependencies (React, Vite, viem, wagmi, Express, better-sqlite3, zod, multiformats,
 poseidon-lite and their transitive dependencies) are used under their respective MIT, ISC or
 Apache-2.0 licences as declared in their package manifests.
