@@ -19,36 +19,39 @@ export default function Book() {
 
   if (!pool) {
     return (
-      <div className="wrap page">
-        {zip.poolError ? <div className="alert alert-bad">The Zipcoin node is unreachable.</div> : <p className="muted"><span className="spin" />Connecting to the Zipcoin node</p>}
+      <div className="page pad">
+        {zip.poolError ? <div className="alert alert-bad">The Zipcoin node is unreachable.</div> : <p className="muted mono"><span className="spin" />Connecting to the Zipcoin node</p>}
       </div>
     );
   }
   const s = zip.stats;
+  const minBurn = pool.params.book ? fmtZC(pool.params.book.minBurn, 0) : '…';
   return (
-    <div className="wrap page">
-      <div className="page-head">
+    <main>
+      <div className="page-head pad">
         <div>
-          <p className="eyebrow">The Book</p>
-          <h1 className="page-h">Burn to speak. <em>Nobody signs.</em></h1>
-          <p className="page-sub">Every entry is a private withdrawal that burned ZC. The text is permanent and public. The author cannot be proven, because the proof names no deposit.</p>
+          <span className="eyebrow">03 · The Book · live</span>
+          <h1 className="h1">Burn to speak. Nobody signs.</h1>
         </div>
+        <p className="page-sub">A public record on Ethereum where a line costs a burn and authorship cannot be proven. The ZC comes out of the shield through a proof, so no wallet is attached to it. The burn is the only signature the Book accepts.</p>
       </div>
       <StatsStrip
         items={[
-          { k: 'Burned to speak', v: fmtZC(s?.totalBurned ?? '0', 0), unit: 'ZC', d: `${fmtZC(s?.burned24h ?? '0', 0)} ZC in the last 24h`, ember: true },
           { k: 'Entries', v: String(s?.posts ?? '…'), d: `${s?.posts24h ?? 0} today` },
-          { k: 'Largest burn', v: fmtZC(s?.largestBurn ?? '0', 0), unit: 'ZC' },
-          { k: 'Anonymity set', v: String(s?.approved ?? '…'), d: 'approved deposits' },
+          { k: 'Burned, total', v: fmtZC(s?.totalBurned ?? '0', 0), unit: 'ZC', d: `${fmtZC(s?.burned24h ?? '0', 0)} ZC in the last 24h`, ember: true },
+          { k: 'Loudest line', v: fmtZC(s?.largestBurn ?? '0', 0), unit: 'ZC' },
+          { k: 'Minimum per line', v: minBurn, unit: 'ZC', d: `${s?.approved ?? '…'} approved deposits to hide in` },
         ]}
       />
-      <div className="cols cols-feed">
-        <Feed book={!!book} onReply={setReplyTo} />
-        <div className="sticky">
+      <section className="split w57">
+        <div className="col" style={{ paddingBlock: 0 }}>
+          <Feed book={!!book} onReply={setReplyTo} />
+        </div>
+        <div className="col ink">
           <Compose book={book} replyTo={replyTo} clearReply={() => setReplyTo(null)} />
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
 
@@ -100,38 +103,36 @@ function Feed({ book, onReply }: { book: boolean; onReply: (p: Post) => void }) 
   };
 
   return (
-    <section className="card">
+    <div className="card" style={{ gap: 0 }}>
       <div className="feed-tools">
-        <div className="seg">
-          <button className={sort === 'new' ? 'is-on' : ''} onClick={() => setSort('new')}>Newest</button>
-          <button className={sort === 'burn' ? 'is-on' : ''} onClick={() => setSort('burn')}>Most burned</button>
+        <span className="eyebrow">No. · entry · burned · block</span>
+        <div className="row">
+          {incoming.length > 0 ? (
+            <button className="pill" onClick={merge}>{incoming.length} new {incoming.length === 1 ? 'entry' : 'entries'}</button>
+          ) : (
+            <span className="fine mono">{zip.nodeOk ? 'live' : 'offline'}</span>
+          )}
+          <div className="seg">
+            <button className={sort === 'new' ? 'is-on' : ''} onClick={() => setSort('new')}>newest</button>
+            <button className={sort === 'burn' ? 'is-on' : ''} onClick={() => setSort('burn')}>loudest</button>
+          </div>
         </div>
-        {incoming.length > 0 ? (
-          <button className="pill" onClick={merge}>{incoming.length} new {incoming.length === 1 ? 'entry' : 'entries'}</button>
-        ) : (
-          <span className="fine">{zip.nodeOk ? 'live' : 'offline'}</span>
-        )}
       </div>
-      {!book && <p className="muted">The Book is not deployed on this network yet.</p>}
-      {feed.isLoading && <div className="stack"><div className="skeleton" /><div className="skeleton" style={{ width: '70%' }} /></div>}
-      {feed.data && posts.length === 0 && <div className="empty">Nothing has been said yet. The first burn writes the first line.</div>}
+      {!book && <p className="muted" style={{ padding: '20px 0' }}>The Book is not deployed on this network yet.</p>}
+      {feed.isLoading && <div className="stack" style={{ padding: '20px 0' }}><div className="skeleton" /><div className="skeleton" style={{ width: '70%' }} /></div>}
+      {feed.data && posts.length === 0 && <div className="empty" style={{ margin: '20px 0' }}><b>Nothing has been said yet.</b><span className="light">The first burn writes the first line.</span></div>}
       <ol className="feed">
         {posts.map((p) => (
           <li key={p.id} className={`feed-item ${weight(p.burned)}${flash.has(p.id) ? ' is-new' : ''}`}>
-            <div className="burn">
-              <span className="num">{fmtZC(p.burned, 0)} zc</span>
-              <small>burned</small>
-              <span className="burn-bar" style={{ width: `${Math.max(12, Math.min(100, largest ? Number((BigInt(p.burned) * 100n) / largest) : 0))}%` }} />
-            </div>
+            <span className="no">{p.id}</span>
             <div>
               <p className="msg">{p.text}</p>
               <div className="meta">
-                <span>#{p.id}</span>
                 <span>{ago(p.ts)}</span>
                 {zip.explorer(p.tx) ? <a href={zip.explorer(p.tx)!} target="_blank" rel="noopener">{short(p.tx, 5)}</a> : <span>{short(p.tx, 5)}</span>}
-                <button className="link" style={{ fontSize: 'inherit' }} onClick={() => onReply(p)}>reply</button>
+                <button className="link" style={{ color: 'var(--mute)' }} onClick={() => onReply(p)}>reply</button>
                 {(replyCount.get(p.id) ?? 0) > 0 && (
-                  <button className="link" style={{ fontSize: 'inherit' }} onClick={() => setOpen((s) => { const n = new Set(s); n.has(p.id) ? n.delete(p.id) : n.add(p.id); return n; })}>
+                  <button className="link" style={{ color: 'var(--mute)' }} onClick={() => setOpen((st) => { const n = new Set(st); n.has(p.id) ? n.delete(p.id) : n.add(p.id); return n; })}>
                     {open.has(p.id) ? 'hide' : `${replyCount.get(p.id)} ${replyCount.get(p.id) === 1 ? 'reply' : 'replies'}`}
                   </button>
                 )}
@@ -141,16 +142,22 @@ function Feed({ book, onReply }: { book: boolean; onReply: (p: Post) => void }) 
                   {(feed.data?.posts ?? []).filter((r) => r.reply_to === p.id).sort((a, b) => a.id - b.id).map((r) => (
                     <div key={r.id}>
                       <p className="msg">{r.text}</p>
-                      <div className="meta"><span>#{r.id}</span><span>{fmtZC(r.burned, 0)} zc burned</span><span>{ago(r.ts)}</span></div>
+                      <div className="meta"><span>#{r.id}</span><span>{fmtZC(r.burned, 0)} ZC burned</span><span>{ago(r.ts)}</span></div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
+            <span className="burn">{fmtZC(p.burned, 0)} ZC</span>
+            <span className="blk">{p.block ? p.block.toLocaleString('en-US') : 'pending'}</span>
           </li>
         ))}
       </ol>
-    </section>
+      <div className="row" style={{ justifyContent: 'space-between', padding: '20px 0' }}>
+        <span className="fine mono">new entries appear here the moment they are mined</span>
+        <span className="fine mono">replies are entries too · each costs its own burn</span>
+      </div>
+    </div>
   );
 }
 
@@ -202,42 +209,48 @@ function Compose({ book, replyTo, clearReply }: { book: `0x${string}` | null; re
   };
 
   return (
-    <section className="card">
-      <div className="card-head"><h2>{replyTo ? `Reply to #${replyTo.id}` : 'Write'}</h2>{replyTo && <button className="btn btn-sm" onClick={clearReply}>cancel</button>}</div>
-      {replyTo && <p className="fine" style={{ marginBottom: '.75rem' }}>“{replyTo.text.slice(0, 120)}{replyTo.text.length > 120 ? '…' : ''}”</p>}
+    <div className="card">
+      <div className="card-head"><h2>{replyTo ? `Reply to ${replyTo.id}` : 'Write a line'}</h2>{replyTo ? <button className="btn btn-sm" onClick={clearReply}>cancel</button> : <span className="tag">from a note</span>}</div>
+      {replyTo && <p className="fine">“{replyTo.text.slice(0, 120)}{replyTo.text.length > 120 ? '…' : ''}”</p>}
       {!book && <p className="muted">The Book is not deployed on this network yet.</p>}
       {book && !ready && params.data && <SpendGate gate={gate} minBurn={minBurn} delaySeconds={asp.data?.delaySeconds} action="Posting" />}
       {book && ready && (
         <div className="stack">
-          <textarea className="input" value={text} onChange={(e) => setText(e.target.value)} placeholder="What the pool will say for you" disabled={!!progress} />
-          <p className="fine num">{bytes}{params.data ? ` / ${params.data.maxText}` : ''} bytes</p>
+          <label className="field">
+            <span>Entry · up to {params.data?.maxText ?? 280} bytes · {bytes} used</span>
+            <textarea className="input" value={text} onChange={(e) => setText(e.target.value)} placeholder="What the pool will say for you" disabled={!!progress} />
+          </label>
           <label className="field">
             <span className="row" style={{ justifyContent: 'space-between' }}>
-              <span>Burn (ZC)</span>
-              <button className="link" style={{ fontSize: '.8rem' }} onClick={() => setBurnInput(fmtZC(gate.maxBurn, 3).replace(/,/g, ''))} disabled={!!progress}>max {fmtZC(gate.maxBurn, 2)}</button>
+              <span>Burn · ZC</span>
+              <button className="link" onClick={() => setBurnInput(fmtZC(gate.maxBurn, 3).replace(/,/g, ''))} disabled={!!progress}>max {fmtZC(gate.maxBurn, 2)}</button>
             </span>
-            <input className="input num" inputMode="decimal" value={burnInput} placeholder={fmtZC(minBurn)} onChange={(e) => setBurnInput(e.target.value)} disabled={!!progress} />
+            <input className="input big num" inputMode="decimal" value={burnInput} placeholder={fmtZC(minBurn)} onChange={(e) => setBurnInput(e.target.value)} disabled={!!progress} />
           </label>
-          <dl className="kv">
-            <dt>Burned</dt><dd className="num">{fmtZC(gate.burned, 3)} ZC</dd>
-            <dt>Relay fee</dt><dd className="num">{Number(feeBps) / 100}% · {fmtZC(gate.gross - gate.burned, 3)} ZC</dd>
-            <dt>Taken from note</dt><dd className="num">{fmtZC(gate.gross, 3)} ZC of {fmtZC(gate.note.value)} ZC</dd>
-            <dt>Note after</dt><dd className="num">{fmtZC(gate.note.value - gate.gross, 3)} ZC</dd>
-          </dl>
+          <div className="receipt">
+            <div><span>burned · to the furnace</span><span>{fmtZC(gate.burned, 3)} ZC</span></div>
+            <div><span>relayer fee · {Number(feeBps) / 100}%</span><span>{fmtZC(gate.gross - gate.burned, 3)} ZC</span></div>
+            <div><span>taken from note</span><span>{fmtZC(gate.gross, 3)} of {fmtZC(gate.note.value)} ZC</span></div>
+            <div><span>note after</span><span>{fmtZC(gate.note.value - gate.gross, 3)} ZC</span></div>
+          </div>
           <p className="fine">Spends from your pool balance ({fmtZC(gate.approvedTotal)} ZC approved), never from your wallet. Minimum burn {fmtZC(minBurn)} ZC.</p>
           {progress ? (
             <ProofProgress message={progress} />
           ) : (
-            <button className="btn btn-primary" disabled={bytes === 0 || wantBurn < minBurn || wantBurn > gate.maxBurn} onClick={() => void post()}>Burn and post</button>
+            <button className="btn btn-ink btn-big" disabled={bytes === 0 || wantBurn < minBurn || wantBurn > gate.maxBurn} onClick={() => void post()}>Burn and post</button>
           )}
+          <div className="empty" style={{ padding: 16 }}>
+            <span className="eyebrow">Before you burn</span>
+            <span className="light" style={{ fontSize: 14 }}>The line is permanent and cannot be edited, deleted or attributed, including by you. The ZC is sent to 0x…dEaD and does not come back. The proof takes about eight seconds in this tab.</span>
+          </div>
         </div>
       )}
       {result && (
-        <div className="alert alert-ok" style={{ marginTop: '.75rem' }}>
+        <div className="alert alert-ok">
           Posted. {zip.explorer(result) ? <a href={zip.explorer(result)!} target="_blank" rel="noopener">View transaction</a> : <code className="fine">{short(result, 8)}</code>}
         </div>
       )}
-      {error && <div className="alert alert-bad" style={{ marginTop: '.75rem' }}>{error}</div>}
-    </section>
+      {error && <div className="alert alert-bad">{error}</div>}
+    </div>
   );
 }

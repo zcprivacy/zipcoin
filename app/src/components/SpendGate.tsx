@@ -20,33 +20,33 @@ export function SpendGate({ gate, minBurn, delaySeconds, action }: { gate: Exclu
   switch (gate.kind) {
     case 'locked':
       return (
-        <div className="alert">
-          <p style={{ margin: '0 0 .6rem' }}>{action} spends from your pool balance, never from your wallet. Unlock your zip key to see what you have in the pool.</p>
-          <button className="btn btn-sm btn-primary" onClick={zip.openUnlock}>Unlock zip key</button>
+        <div className="empty">
+          <b>Locked.</b>
+          <span className="light">{action} spends from your pool balance, never from your wallet. Unlock your zip key to see what you have in the pool.</span>
+          <button className="btn btn-ink btn-big" onClick={zip.openUnlock}>Unlock zip key</button>
         </div>
       );
     case 'empty':
       return (
-        <div className="alert">
-          <p style={{ margin: '0 0 .6rem' }}>Your pool balance is 0 ZC. {action} spends from the pool, not from your wallet, so the first step is a deposit. The minimum burn is {fmtZC(minBurn)} ZC.</p>
-          <Link className="btn btn-sm btn-primary" to="/pool">Deposit ZC in the Pool</Link>
+        <div className="empty">
+          <b>Nothing in the pool yet.</b>
+          <span className="light">{action} spends from the pool, not from your wallet, so the first step is a deposit. The minimum burn is {fmtZC(minBurn)} ZC.</span>
+          <Link className="btn btn-ink btn-big" to="/pool">Deposit in the Pool</Link>
         </div>
       );
     case 'pending':
       return (
-        <div className="alert">
-          <p style={{ margin: 0 }}>
-            <span className="spin" />Your deposit of {fmtZC(gate.pendingTotal)} ZC is waiting for approval, usually {delayText(delaySeconds)}. This panel enables itself the moment it is approved.
-          </p>
+        <div className="empty">
+          <b>Waiting for approval.</b>
+          <span className="light"><span className="spin" />Your deposit of {fmtZC(gate.pendingTotal)} ZC is waiting for the policy, usually {delayText(delaySeconds)}. This panel enables itself the moment it is approved.</span>
         </div>
       );
     case 'insufficient':
       return (
-        <div className="alert">
-          <p style={{ margin: '0 0 .6rem' }}>
-            Your largest approved note is {fmtZC(gate.largest)} ZC. {action} needs at least {fmtZC(gate.needed, 3)} ZC in one note to cover the {fmtZC(minBurn)} ZC minimum burn plus the relay fee. Notes cannot be combined, so deposit a larger amount.
-          </p>
-          <Link className="btn btn-sm btn-primary" to="/pool">Deposit more ZC</Link>
+        <div className="empty">
+          <b>Largest note too small.</b>
+          <span className="light">Your largest approved note is {fmtZC(gate.largest)} ZC. {action} needs at least {fmtZC(gate.needed, 3)} ZC in one note to cover the {fmtZC(minBurn)} ZC minimum burn plus the relay fee. Notes cannot be combined, so deposit a larger amount.</span>
+          <Link className="btn btn-ink btn-big" to="/pool">Deposit more</Link>
         </div>
       );
   }

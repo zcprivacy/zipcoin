@@ -16,7 +16,7 @@ async function sha(s: string) {
 }
 const shortHex = (h: string) => `${h.slice(0, 10)}…${h.slice(-8)}`;
 
-/** The receipt demo: what you see versus what the chain sees. */
+/** The receipt, two ways: what you see versus what the chain sees. */
 export function Demo() {
   const [amount, setAmount] = useState(10.5);
   const [note, setNote] = useState(() => ({ secret: randHex(16), nullifier: randHex(16), label: randHex(8) }));
@@ -39,41 +39,36 @@ export function Demo() {
   }, [note, total]);
 
   return (
-    <div className="demo" id="demo">
-      <div className="pane pane-you">
-        <div className="pane-head"><span className="eyebrow">What you see</span><span className="eyebrow">Receipt</span></div>
+    <div className="split" style={{ border: '2px solid var(--ink)', maxWidth: 880 }}>
+      <div className="col" style={{ padding: 20, gap: 10, background: 'var(--white)' }}>
+        <span className="eyebrow">What you see</span>
         <div className="receipt">
-          <div className="receipt-row"><span>Payee</span><span>The Lantern Café</span></div>
-          <div className="amount">
-            <label htmlFor="amt"><span>Amount</span><output className="num">{fmt(amount)} zc</output></label>
-            <input id="amt" type="range" min="1" max="60" step="0.5" value={amount} aria-label="Payment amount in ZC" onChange={(e) => setAmount(Number(e.target.value))} />
-          </div>
-          <div className="receipt-row"><span>Base</span><span className="num">{fmt(amount)} zc</span></div>
-          <div className="receipt-row"><span>Tax</span><span className="num">{fmt(tax)} zc</span></div>
-          <div className="receipt-row total"><span>Total</span><span className="num">{fmt(total)} zc</span></div>
-          <p className="receipt-note">Tax follows the receipt in Snowmoon (10.5 base, 1.1 tax). Paying it privately in real time is a Phase VII item.</p>
+          <div><span>paid to</span><span>a café</span></div>
+          <div><span>base</span><span>{fmt(amount)} ZC</span></div>
+          <div><span>tax</span><span>{fmt(tax)} ZC</span></div>
+          <div><span>total</span><span><b>{fmt(total)} ZC</b></span></div>
         </div>
+        <label className="field">
+          <span>Amount · {fmt(amount)} ZC</span>
+          <input type="range" min="1" max="60" step="0.5" value={amount} aria-label="Payment amount in ZC" onChange={(e) => setAmount(Number(e.target.value))} />
+        </label>
+        <p className="fine">Tax follows the receipt in Snowmoon, 10.5 base and 1.1 tax. Paying it privately in real time is a Phase VII item.</p>
       </div>
-      <div className="pane pane-chain">
-        <div className="pane-head">
+      <div className="col ink" style={{ padding: 20, gap: 10 }}>
+        <div className="row" style={{ justifyContent: 'space-between' }}>
           <span className="eyebrow">What the chain sees</span>
-          <button className="tiny-btn" type="button" onClick={() => setNote({ secret: randHex(16), nullifier: randHex(16), label: randHex(8) })}>New note</button>
+          <button className="btn btn-sm" type="button" onClick={() => setNote({ secret: randHex(16), nullifier: randHex(16), label: randHex(8) })}>New note</button>
         </div>
-        <p className="chain-split">Public</p>
-        <dl className="chain">
-          <div><dt>withdrawnValue</dt><dd className="pub num">{fmt(total)} ZC</dd></div>
-          <div><dt>recipient</dt><dd className="pub">café</dd></div>
-          <div><dt>nullifierHash</dt><dd className="hex" title={hashes.nul}>{hashes.nul.startsWith('0x') ? shortHex(hashes.nul) : '…'}</dd></div>
-          <div><dt>newCommitment</dt><dd className="hex" title={hashes.commit}>{hashes.commit.startsWith('0x') ? shortHex(hashes.commit) : '…'}</dd></div>
-          <div><dt>stateRoot</dt><dd className="hex" title={hashes.root}>{hashes.root.startsWith('0x') ? shortHex(hashes.root) : '…'}</dd></div>
-        </dl>
-        <p className="chain-split">Not there</p>
-        <dl className="chain">
-          <div><dt>depositor</dt><dd className="hid">hidden</dd></div>
-          <div><dt>source note</dt><dd className="hid">one of every approved deposit</dd></div>
-          <div><dt>remaining balance</dt><dd className="hid">hidden inside newCommitment</dd></div>
-        </dl>
-        <p className="fine" style={{ padding: '.9rem 1.1rem 1.1rem' }}>Hashes above are SHA-256 for illustration. The protocol uses Poseidon over BN254 and the proof is verified on-chain with Groth16.</p>
+        <div className="receipt">
+          <div><span>withdrawnValue</span><span>{fmt(total)} ZC</span></div>
+          <div><span>recipient</span><span>a café</span></div>
+          <div><span>payer</span><span className="bar" style={{ width: 110 }} /></div>
+          <div><span>nullifierHash</span><span title={hashes.nul}>{hashes.nul.startsWith('0x') ? shortHex(hashes.nul) : '…'}</span></div>
+          <div><span>newCommitment</span><span title={hashes.commit}>{hashes.commit.startsWith('0x') ? shortHex(hashes.commit) : '…'}</span></div>
+          <div><span>source note</span><span className="bar" style={{ width: 80 }} /></div>
+          <div><span>remaining balance</span><span className="bar" style={{ width: 60 }} /></div>
+        </div>
+        <p className="fine">Hashes are SHA-256 for illustration. The protocol uses Poseidon over BN254 and the proof is verified on chain with Groth16.</p>
       </div>
     </div>
   );

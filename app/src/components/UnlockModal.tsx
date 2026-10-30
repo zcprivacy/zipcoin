@@ -23,19 +23,19 @@ export function UnlockModal() {
   return (
     <div className="modal-back" onClick={zip.closeUnlock} role="presentation">
       <div className="modal" role="dialog" aria-modal="true" aria-labelledby="unlock-title" onClick={(e) => e.stopPropagation()}>
-        <p className="eyebrow">Zip key</p>
+        <span className="eyebrow">Zip key</span>
         <h2 id="unlock-title">Unlock your notes</h2>
-        <p className="muted" style={{ marginTop: 0 }}>
+        <p className="light" style={{ fontSize: 15 }}>
           Your notes are controlled by a 12-word zip phrase. A wallet derives it with one signature that costs nothing and
           sends nothing; the same wallet always gives the same phrase. You can also paste a phrase from another device.
         </p>
-        <div className="seg" style={{ marginBottom: '1rem' }}>
+        <div className="seg">
           <button className={mode === 'wallet' ? 'is-on' : ''} onClick={() => setMode('wallet')}>Wallet</button>
           <button className={mode === 'phrase' ? 'is-on' : ''} onClick={() => setMode('phrase')}>Phrase</button>
         </div>
         {mode === 'wallet' ? (
           <div className="row">
-            <button className="btn btn-primary" disabled={!isConnected} onClick={() => void zip.unlockWithWallet()}>Sign to unlock</button>
+            <button className="btn btn-ink btn-big" disabled={!isConnected} onClick={() => void zip.unlockWithWallet()}>Sign to unlock</button>
             {!isConnected && <span className="fine">Connect a wallet first</span>}
           </div>
         ) : (
@@ -43,13 +43,13 @@ export function UnlockModal() {
             <p className="fine">Enter the zip phrase shown under Notes on the Pool page. Never enter your wallet's seed phrase here.</p>
             <textarea className="input" placeholder="twelve words separated by spaces" value={text} onChange={(e) => setText(e.target.value)} />
             <div className="row">
-              <button className="btn btn-primary" onClick={() => zip.unlockWithPhrase(text)}>Use this phrase</button>
+              <button className="btn btn-ink btn-big" onClick={() => zip.unlockWithPhrase(text)}>Use this phrase</button>
               <span className="fine">Nothing is stored. Closing the tab locks again.</span>
             </div>
           </div>
         )}
-        {zip.error && <div className="alert alert-bad" style={{ marginTop: '1rem' }}>{zip.error}</div>}
-        <div className="row" style={{ marginTop: '1.25rem', justifyContent: 'flex-end' }}>
+        {zip.error && <div className="alert alert-bad">{zip.error}</div>}
+        <div className="row" style={{ justifyContent: 'flex-end' }}>
           <button className="btn btn-sm" onClick={zip.closeUnlock}>Close</button>
         </div>
       </div>

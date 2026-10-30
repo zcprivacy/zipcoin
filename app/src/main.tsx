@@ -8,8 +8,7 @@ import { injected } from 'wagmi/connectors';
 
 import App from './App';
 import { RPC_URL, anvil, chains } from './lib/config';
-import './styles/site.css';
-import './styles/app.css';
+import './styles/ledger.css';
 
 /**
  * Reads go through the connected wallet's own RPC first, so the app depends on no third-party
